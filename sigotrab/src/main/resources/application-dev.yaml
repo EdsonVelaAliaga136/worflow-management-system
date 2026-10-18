@@ -1,0 +1,8 @@
+spring:
+  thymeleaf.cache: false
+sigotrab:
+  lock:
+    duration-minutes: 2
+logging:
+  level:
+    com.sigotrab: DEBUG

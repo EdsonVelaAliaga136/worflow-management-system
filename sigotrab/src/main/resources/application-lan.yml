@@ -1,0 +1,11 @@
+server:
+  address: 0.0.0.0
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:postgresql://${SIGOTRAB_DB_HOST:localhost}:5432/sigotrab
+    username: ${SIGOTRAB_DB_USER}
+    password: ${SIGOTRAB_DB_PASSWORD}
+sigotrab:
+  lock:
+    duration-minutes: 20
