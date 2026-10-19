@@ -2,8 +2,8 @@ spring:
   application:
     name: sigo
   datasource:
-    url: jdbc:postgresql://localhost:5432/sigotrab
-    username: sigotrab
+    url: jdbc:postgresql://localhost:5432/sigotrabdb
+    username: sigotrabuser
     password: ${SIGOTRAB_DB_PASSWORD:change-me}
   jpa:
     open-in-view: false
@@ -15,6 +15,9 @@ spring:
     locations: classpath:db/migration
   thymeleaf:
     cache: true
+  web:
+    locale: es
+    locale-resolver: fixed
 server:
   port: 8080
 sigotrab:

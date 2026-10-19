@@ -1,0 +1,16 @@
+<!-- templates/layout.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="layout(title, content)">
+<head>
+  <meta charset="UTF-8"/>
+  <title th:replace="${title}">SIGO</title>
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}"/>
+  <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body>
+  <main th:replace="${content}"></main>
+  <script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

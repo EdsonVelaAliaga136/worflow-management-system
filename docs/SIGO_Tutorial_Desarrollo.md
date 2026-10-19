@@ -160,6 +160,11 @@ CREATE ROLE sigotrab LOGIN PASSWORD 'change-me';
 CREATE DATABASE sigotrab OWNER sigotrab;
 ```
 
+> **Alternativa con Docker (ADR-0006):** en lugar de instalar PostgreSQL 17 nativo, puedes
+> levantar la BD de desarrollo con el servicio `postgres:17` de `docker/docker-compose.yml`
+> (`POSTGRES_DB=sigotrab`, `POSTGRES_USER=sigotrab`, contraseña por `.env`). La app apunta a
+> `localhost:5432/sigotrab`. Los **tests** siguen usando `embedded-postgres` (sin Docker).
+
 > **Por qué PostgreSQL 17:** la versión embebida que usarán los tests es 17.5.0.
 > Igualar versiones evita diferencias entre test y demo.
 
@@ -361,6 +366,8 @@ agregado, guarda, y registra auditoría `CREATE`.
 - `OffersController`: `GET /offers`, `GET /offers/new`, `POST /offers`,
   `GET /offers/{id}`, `GET /offers/registered` (con `Pageable`).
 - DTO de formulario con Bean Validation (`@NotBlank`, `@Size`) y `@Valid` en el controlador.
+  Obligatorios: `title`, `company`, `description`, `requirements`, `source_url`,
+  `extractedAt`; opcionales: `location`, `salary`, `employmentType` (ADR-0007).
 
 ### Paso 5 — Deduplicación (§24)
 

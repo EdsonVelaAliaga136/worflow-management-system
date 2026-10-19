@@ -110,6 +110,7 @@ Permisos:
 - Revisar información.
 - Aprobar ofertas.
 - Rechazar ofertas.
+- Consultar reportes.
 - Consultar historial de ofertas registradas.
 
 ---
@@ -215,11 +216,14 @@ IN_PROGRESS → PUBLISHED
 IN_PROGRESS → APPROVED
 ```
 
-Opcionalmente:
+Además:
 
 ```text
 REGISTERED → REJECTED
 ```
+
+`REJECTED` y `PUBLISHED` son estados terminales. En v1 no existe despublicación
+(`UNPUBLISH`) ni borrado de ofertas (ADR-0008).
 
 No se permitirá realizar transiciones arbitrarias.
 
@@ -522,6 +526,9 @@ REASSIGN
 
 No todas las acciones serán aplicables a todas las entidades.
 
+En v1, `UNPUBLISH` y `DELETE` no se aplican a ofertas (ADR-0008); `DELETE` sobre usuarios
+se representa deshabilitando (`enabled=false`).
+
 ---
 
 # 11. Historial de estados
@@ -618,6 +625,8 @@ public enum JobStatus {
 }
 ```
 
+`CANCELLED` queda fuera del alcance: la cancelación vuelve a `APPROVED` (ADR-0008).
+
 ---
 
 ## JobOffer
@@ -638,6 +647,10 @@ public class JobOffer {
     private String employmentType;
 
     private String originalSourceUrl;
+    private String sourceName;
+    private String externalReference;
+    private Instant extractedAt;
+    private String publicationUrl;
 
     private JobStatus status;
 
@@ -876,6 +889,10 @@ salary
 employment_type
 
 source_url
+source_name
+external_reference
+extracted_at
+publication_url
 
 status
 
@@ -932,6 +949,10 @@ podrá utilizarse una restricción única:
 ```
 
 La URL de origen podrá utilizarse como información adicional, pero no necesariamente deberá considerarse un identificador único.
+
+Si faltan `source_name` y `external_reference`, la oferta no se deduplica (PostgreSQL
+permite múltiples `NULL` en una restricción `UNIQUE`): en ese caso solo se emite un aviso
+en la interfaz.
 
 ---
 

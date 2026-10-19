@@ -5,4 +5,4 @@ sigotrab:
     duration-minutes: 2
 logging:
   level:
-    com.sigotrab: DEBUG
+    com.evela.sigotrab: DEBUG

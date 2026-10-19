@@ -14,7 +14,7 @@
 |---|---|---|
 | D1 | Entrega | Documento de plan + chat; scaffolding real en modo build |
 | D2 | Versión base | **Spring Boot 4.1.1** (Spring Framework 7, Security 7.1.1) sobre **Java 25**, Maven |
-| D3 | PostgreSQL | **PG 17 nativo** para la app + **embedded-postgres (Zonky)** para tests (sin Docker) |
+| D3 | PostgreSQL | **PG 17** para la app: Docker para la BD de desarrollo/demo (ADR-0006) o nativo; **embedded-postgres (Zonky)** para tests (sin Docker) |
 | D4 | Estados | `REGISTERED, APPROVED, IN_PROGRESS, PUBLISHED, REJECTED`; `CANCELLED` fuera |
 | D5 | UI | **Thymeleaf + Bootstrap server-rendered**, PRG + flash, JS mínimo, sin HTMX/SPA; 1 endpoint JSON para adquirir |
 | D6 | Idioma | UI y mensajes en **español**; identificadores/código en inglés; mensajes vía `MessageSource` |
@@ -72,6 +72,22 @@ está desactualizado o requiere una decisión explícita:
 9. **CI y artefacto.** El spec pide `sigotrab.jar` (§44); se fija `artifactId=sigotrab`.
 10. **Usuarios no se borran.** El admin "elimina" deshabilitando (`enabled=false`); el
     borrado físico rompería la trazabilidad. FK con `ON DELETE SET NULL`.
+11. **Docker para la BD de desarrollo** (ADR-0006). El plan lo excluía; se añade un
+    servicio `postgres:17` (`sigotrab`/`sigotrab`, contraseña por `.env`) manteniendo PG
+    nativo como alternativa. Los tests siguen con `embedded-postgres`, sin Docker.
+12. **Ciclo de vida cerrado** (ADR-0008). `REJECTED` y `PUBLISHED` son terminales; no hay
+    `UNPUBLISH` ni borrado de ofertas; el rechazo solo desde `REGISTERED`.
+13. **Campos obligatorios y `extracted_at`** (ADR-0007). Obligatorios: `title`, `company`,
+    `description`, `requirements`, `source_url`; opcionales: `location`, `salary`,
+    `employment_type`. Se añade `extracted_at` (fecha de la fuente).
+14. **Marcas temporales y URL de publicación** (ADR-0010). `approved_at` se fija en la
+    primera aprobación; `published_at` al publicar; `publication_url` opcional.
+15. **Al deshabilitar un usuario, se liberan sus bloqueos** a `APPROVED`, auditado como
+    `SYSTEM` (ADR-0011).
+16. **Acceso a auditoría/reportes.** `/reports` para `ADMIN`+`REGISTRADOR`; `/audit` solo
+    `ADMIN`. El `REGISTRADOR` ve la trazabilidad por oferta en `/offers/{id}`.
+17. **Primer admin parametrizable** en el perfil `lan` (ADR-0009): seed idempotente solo si
+    no existe ningún usuario, con contraseña por variable de entorno.
 
 ---
 
@@ -116,7 +132,7 @@ sigotrab/
 ├── GLOSSARY.md
 ├── docs/
 │   ├── SIGO_Especificacion_Proyecto.md      (el spec original)
-│   └── adr/0001-..0005-*.md
+│   └── adr/0001-..0011-*.md
 ├── scripts/
 │   ├── run.ps1 / run.sh
 │   └── backup.ps1 / backup.sh
@@ -350,14 +366,16 @@ create table job_offer (
     id                 uuid primary key default gen_random_uuid(),
     title              varchar(200) not null,
     company            varchar(150) not null,
-    description        text,
-    requirements       text,
+    description        text         not null,
+    requirements       text         not null,
     location           varchar(150),
     salary             varchar(100),
     employment_type    varchar(50),
-    source_url         varchar(500),
+    source_url         varchar(500) not null,
     source_name        varchar(60),
     external_reference varchar(120),
+    extracted_at       timestamptz  not null,
+    publication_url    varchar(500),
     status             varchar(20)  not null,
     assigned_user_id   uuid references users(id) on delete set null,
     locked_at          timestamptz,
@@ -665,7 +683,8 @@ public class SecurityConfig {
                     .hasRole("REGISTRADOR")
                 .requestMatchers("/api/offers/*/acquire", "/offers/*/cancel", "/offers/*/publish")
                     .hasRole("PUBLICADOR")
-                .requestMatchers("/reports/**", "/audit/**").hasAnyRole("ADMIN", "REGISTRADOR")
+                .requestMatchers("/reports/**").hasAnyRole("ADMIN", "REGISTRADOR")
+                .requestMatchers("/audit/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .formLogin(form -> form.loginPage("/login")
                 .defaultSuccessUrl("/dashboard", true).permitAll())
@@ -1020,6 +1039,12 @@ Mapa por área:
   - `0003-regla-de-transicion-en-dominio-y-sql.md`
   - `0004-webjars-para-operacion-lan.md`
   - `0005-sembrado-de-usuarios-demo.md`
+  - `0006-docker-para-base-de-datos-de-desarrollo.md`
+  - `0007-campos-obligatorios-y-fecha-de-extraccion.md`
+  - `0008-ciclo-de-vida-cerrado.md`
+  - `0009-primer-administrador-parametrizable.md`
+  - `0010-marcas-temporales-y-url-de-publicacion.md`
+  - `0011-deshabilitar-usuario-libera-bloqueos.md`
 - **GLOSSARY.md:** Oferta (`JobOffer`), Adquisición (`acquire`), Bloqueo (`lock`),
   Liberación (`release`), Publicación (`publish`), Registrador/Publicador/Admin, Timeout.
 
@@ -1036,8 +1061,9 @@ Mapa por área:
 | `gen_random_uuid()` requiere PG ≥ 13 | PG 17 lo trae nativo; no hace falta `pgcrypto` |
 | CI en Linux vs demo en Windows | Binarios embebidos: añadir `embedded-postgres-binaries-linux-amd64` (perfil CI) |
 
-**Fuera de alcance (spec §45):** Docker, Nginx, HTTPS, API REST pública, notificaciones,
-almacenamiento de documentos, backup automatizado, integración con fuentes/portal.
+**Fuera de alcance (spec §45):** Nginx, HTTPS, API REST pública, notificaciones,
+almacenamiento de documentos, backup automatizado, integración con fuentes/portal. (Docker
+para la BD de desarrollo queda **dentro** de alcance, ADR-0006.)
 
 ---
 

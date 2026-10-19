@@ -1,0 +1,29 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head><title>Login — SIGO</title></head>
+<body>
+<main>
+    <form th:action="@{/login}" method="post">
+        <div>
+            <label for="username" th:text="#{login.username}">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="password" th:text="#{login.password}">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <p th:if="${session.loginError}" th:switch="${session.loginError}">
+              <span th:case="'badCredentials'" th:text="#{login.error.badCredentials}"></span>
+              <span th:case="'disabled'"       th:text="#{login.error.disabled}"></span>
+              <span th:case="'locked'"         th:text="#{login.error.locked}"></span>
+              <span th:case="*"                th:text="#{login.error}"></span>
+            </p>
+        </div>
+        <div>
+            <button type="submit" th:text="#{login.submit}">Login</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>
