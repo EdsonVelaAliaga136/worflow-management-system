@@ -12,24 +12,24 @@
 - `opencode.jsonc` is empty. `.agents/skills/grill-me` is installed but broken: its SKILL.md only calls `grilling`, which is not installed.
 
 ## Current state
-- **T1 is being (re)built** by the user, step by step, following `docs/SIGO_Pasos_T1.md` ("you write / I guide"). Already present: `UserJpaEntity`/`RoleJpaEntity` + `UserJpaRepository`, `SecurityConfig`, `SigUser`/`SigUserDetailsService`, `LockProperties`/`SchedulerProperties`, Flyway `V1`/`V2`, `layout.html`, normalized config (`application*.yml`, `messages/`).
-- Still pending: `SeedDevUsers`/`SeedAdminUser` (so login has no users yet), a real `login.html`, and the controllers currently return `ResponseEntity` instead of a view name (`String`).
+- **T1 is implemented** following `docs/SIGO_Pasos_T1.md`: Flyway `V1`/`V2`, JPA entities/repositories, Spring Security form login, `SeedDevUsers` (`dev`), `SeedAdminUser` (`lan`, ADR-0009), `login.html`/`dashboard.html` with logout, and the message bundle.
+- Pending closure: create the T1 commit (working tree is dirty). `SeedAdminUser` only seeds when the DB has no users; `lan` requires `SIGOTRAB_ADMIN_PASSWORD` on first start.
 
 ## Docs-vs-code mismatches (do not "fix" toward the docs)
 - Package/groupId are `com.evela.sigotrab`; plan/spec consistently say `com.sigotrab`. Follow the code.
 - Config already normalized per Q2: `application.yml`/`-dev.yml`/`-lan.yml` and `messages/` (plural) are in place.
-- App DB is `sigotrab` / `sigotrab@localhost:5432`; `src/main/resources/docker/docker-compose.yml` still defaults to `sigotrabdb`/`sigotrabuser`/PG16 and does NOT match — don't mix them. (ADR-0006 wants `postgres:17`/`sigotrab`; pending.)
-- `docker/.env` (password `change-me`) is committed and `.env` is NOT in `.gitignore` (both differ from plan T0). Never add real secrets.
+- App DB is `sigotrabdb` / `sigotrabuser@localhost:5432`; `application*.yml`, `docker-compose.yml`, `.env` and docs use the same names. (ADR-0006 wants `postgres:17`; the `.env` currently uses `16-alpine` — version debt, not name.)
+- `docker/` lives at `sigotrab/docker/` (not `src/main/resources`); `.env` is ignored by `sigotrab/.gitignore`, and `.env.example` is the template. Never add real secrets.
 
 ## Build / run / test (from `sigotrab/`)
 ```
 ./mvnw -B verify                                        # what CI runs
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev   # 2-min lock, seeds demo users
 ./mvnw test -Dtest="Job*Test"                           # single/focused tests
-./mvnw -DskipTests package                              # → target/sigotrab.jar
-java -jar target/sigotrab.jar --spring.profiles.active=lan
+./mvnw -DskipTests package                              # → target/sigotrab-0.0.1-SNAPSHOT.jar
+java -jar target/sigotrab-0.0.1-SNAPSHOT.jar --spring.profiles.active=lan
 ```
-- Prereqs: Java 25 + PostgreSQL 17. Create the DB first: `CREATE ROLE sigotrab LOGIN PASSWORD 'change-me'; CREATE DATABASE sigotrab OWNER sigotrab;`
+- Prereqs: Java 25 + PostgreSQL (17/18). Create the DB first: `CREATE ROLE sigotrabuser LOGIN PASSWORD 'change-me'; CREATE DATABASE sigotrabdb OWNER sigotrabuser;`
 - `./mvnw test` currently fails without a local PostgreSQL: the only test is `@SpringBootTest`, and no test profile / embedded-PG wiring exists. Plan §4.12 specifies Zonky `embedded-postgres` (dependency already in `pom.xml`); write its `EmbeddedPostgresSupport` before adding integration tests.
 - Flyway `V1__baseline.sql` / `V2__seed_roles.sql` (plan §4.4) now exist; the `users`/`roles`/`user_roles` tables are mapped by entities and checked by `ddl-auto: validate`.
 

@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .formLogin(form -> form.loginPage("/login")
                         .failureHandler(failureHandler)
                         .defaultSuccessUrl("/dashboard", true).permitAll())
+                //.rememberMe(rememberMe -> rememberMe.key("unique-and-secure-key"))
                 .logout(logout -> logout.logoutSuccessUrl("/login?logout"))
                 .csrf(Customizer.withDefaults());
         return http.build();

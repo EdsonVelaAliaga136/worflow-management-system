@@ -278,8 +278,8 @@ spring:
   application:
     name: sigo
   datasource:
-    url: jdbc:postgresql://localhost:5432/sigotrab
-    username: sigotrab
+    url: jdbc:postgresql://localhost:5432/sigotrabdb
+    username: sigotrabuser
     password: ${SIGOTRAB_DB_PASSWORD:change-me}
   jpa:
     open-in-view: false
@@ -309,7 +309,7 @@ sigotrab:
     duration-minutes: 2           # §43: demo = 2 minutos
 logging:
   level:
-    com.sigotrab: DEBUG
+    com.evela.sigotrab: DEBUG
 ```
 
 `application-lan.yml`
@@ -319,12 +319,16 @@ server:
   port: 8080
 spring:
   datasource:
-    url: jdbc:postgresql://${SIGOTRAB_DB_HOST:localhost}:5432/sigotrab
-    username: ${SIGOTRAB_DB_USER}
+    url: jdbc:postgresql://${SIGOTRAB_DB_HOST:localhost}:5432/${SIGOTRAB_DB_NAME:sigotrabdb}
+    username: ${SIGOTRAB_DB_USER:sigotrabuser}
     password: ${SIGOTRAB_DB_PASSWORD}
 sigotrab:
   lock:
     duration-minutes: 20
+  admin:
+    username: ${SIGOTRAB_ADMIN_USERNAME:admin}
+    password: ${SIGOTRAB_ADMIN_PASSWORD:}
+    full-name: ${SIGOTRAB_ADMIN_FULL_NAME:Administrador}
 ```
 
 Enlace de propiedades (record, sin setters):
@@ -334,6 +338,9 @@ public record LockProperties(long durationMinutes) {}
 
 @ConfigurationProperties("sigotrab.scheduler")
 public record SchedulerProperties(long fixedDelayMs) {}
+
+@ConfigurationProperties("sigotrab.admin")
+public record AdminProperties(String username, String password, String fullName) {}
 // @ConfigurationPropertiesScan en la clase principal, o @EnableConfigurationProperties
 ```
 
@@ -967,7 +974,7 @@ java -jar target/sigotrab.jar --spring.profiles.active=lan
 
 `scripts/backup.ps1`
 ```powershell
-param([string]$Db = "sigotrab", [string]$Out = "backups")
+param([string]$Db = "sigotrabdb", [string]$Out = "backups")
 $stamp = Get-Date -Format "yyyy-MM-dd_HHmm"
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
 pg_dump -Fc -d $Db -f "$Out/sigotrab_$stamp.dump"
@@ -975,8 +982,8 @@ pg_dump -Fc -d $Db -f "$Out/sigotrab_$stamp.dump"
 
 Pendiente de la máquina: **instalar PostgreSQL 17** y crear el rol/BD:
 ```sql
-CREATE ROLE sigotrab LOGIN PASSWORD 'change-me';
-CREATE DATABASE sigotrab OWNER sigotrab;
+CREATE ROLE sigotrabuser LOGIN PASSWORD 'change-me';
+CREATE DATABASE sigotrabdb OWNER sigotrabuser;
 ```
 
 ---

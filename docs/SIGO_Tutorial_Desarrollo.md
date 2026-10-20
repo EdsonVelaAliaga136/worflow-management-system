@@ -156,19 +156,21 @@
 Crear la base de datos y el usuario:
 
 ```sql
-CREATE ROLE sigotrab LOGIN PASSWORD 'change-me';
-CREATE DATABASE sigotrab OWNER sigotrab;
+CREATE ROLE sigotrabuser LOGIN PASSWORD 'change-me';
+CREATE DATABASE sigotrabdb OWNER sigotrabuser;
 ```
 
-> **Alternativa con Docker (ADR-0006):** en lugar de instalar PostgreSQL 17 nativo, puedes
-> levantar la BD de desarrollo con el servicio `postgres:17` de `docker/docker-compose.yml`
-> (`POSTGRES_DB=sigotrab`, `POSTGRES_USER=sigotrab`, contraseña por `.env`). La app apunta a
-> `localhost:5432/sigotrab`. Los **tests** siguen usando `embedded-postgres` (sin Docker).
+> **Alternativa con Docker (ADR-0006):** en lugar de instalar PostgreSQL nativo, puedes
+> levantar la BD de desarrollo con el servicio PostgreSQL de `docker/docker-compose.yml`
+> (`POSTGRES_DB=sigotrabdb`, `POSTGRES_USER=sigotrabuser`, versión en `POSTGRES_VERSION`
+> del `.env`). La app apunta a `localhost:5432/sigotrabdb`. Los **tests** siguen usando
+> `embedded-postgres` (sin Docker).
 
 > **Por qué PostgreSQL 17:** la versión embebida que usarán los tests es 17.5.0.
-> Igualar versiones evita diferencias entre test y demo.
+> Igualar versiones evita diferencias entre test y demo. El `.env` actual usa
+> `POSTGRES_VERSION=16-alpine`; unificar la versión es deuda aparte.
 
-**Verificar:** `psql -U sigotrab -d sigotrab -c "select version();"`
+**Verificar:** `psql -U sigotrabuser -d sigotrabdb -c "select version();"`
 
 ---
 
@@ -272,7 +274,7 @@ Crea `application.yml`, `application-dev.yml` y `application-lan.yml` (§4.3 del
 Crea `src/main/resources/db/migration/V1__baseline.sql` y `V2__seed_roles.sql`
 (§4.4 del plan). Copia el SQL tal cual.
 
-**Verificar tras arrancar:** `psql -U sigotrab -d sigotrab -c "\dt"` lista 6 tablas.
+**Verificar tras arrancar:** `psql -U sigotrabuser -d sigotrabdb -c "\dt"` lista 6 tablas.
 
 ### Paso 4 — Seguridad mínima
 
@@ -623,10 +625,10 @@ class SecurityRulesTest {
 ./mvnw -DskipTests package
 
 # inspeccionar la base de datos
-psql -U sigotrab -d sigotrab -c "select status, count(*) from job_offer group by status;"
+psql -U sigotrabuser -d sigotrabdb -c "select status, count(*) from job_offer group by status;"
 
 # respaldar
-pg_dump -Fc -d sigotrab -f backups/sigotrab_$(date +%F).dump
+pg_dump -Fc -d sigotrabdb -f backups/sigotrabdb_$(date +%F).dump
 ```
 
 ## Apéndice C — Errores comunes y solución

@@ -3,6 +3,16 @@
       th:replace="~{layout :: layout(~{::title}, ~{::main})}">
 <head><title>Panel — SIGO</title></head>
 <body>
-<main>… tarjetas REGISTERED / APPROVED / IN_PROGRESS / PUBLISHED / REJECTED …</main>
+<main class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+      Bienvenido,
+      <span th:text="${#authentication.name}">Usuario</span>
+    </h1>
+    <form th:action="@{/logout}" method="post">
+      <button type="submit" class="btn btn-outline-secondary">Salir</button>
+    </form>
+  </div>
+</main>
 </body>
 </html>

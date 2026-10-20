@@ -1476,7 +1476,7 @@ Ejemplo:
 ```properties
 server.port=8080
 
-spring.datasource.url=jdbc:postgresql://localhost:5432/sigotrab
+spring.datasource.url=jdbc:postgresql://localhost:5432/sigotrabdb
 
 sigotrab.lock.duration-minutes=20
 

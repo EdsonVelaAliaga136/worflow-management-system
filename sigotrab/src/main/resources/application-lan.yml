@@ -3,9 +3,13 @@ server:
   port: 8080
 spring:
   datasource:
-    url: jdbc:postgresql://${SIGOTRAB_DB_HOST:localhost}:5432/sigotrab
-    username: ${SIGOTRAB_DB_USER}
+    url: jdbc:postgresql://${SIGOTRAB_DB_HOST:localhost}:5432/${SIGOTRAB_DB_NAME:sigotrabdb}
+    username: ${SIGOTRAB_DB_USER:sigotrabuser}
     password: ${SIGOTRAB_DB_PASSWORD}
 sigotrab:
   lock:
     duration-minutes: 20
+  admin:
+    username: ${SIGOTRAB_ADMIN_USERNAME:admin}
+    password: ${SIGOTRAB_ADMIN_PASSWORD:}
+    full-name: ${SIGOTRAB_ADMIN_FULL_NAME:Administrador}

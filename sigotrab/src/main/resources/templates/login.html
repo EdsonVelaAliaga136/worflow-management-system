@@ -1,29 +1,51 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout :: layout(~{::title}, ~{::main})}">
-<head><title>Login — SIGO</title></head>
+<head>
+  <title th:text="#{login.title}">Iniciar sesión — SIGO</title>
+</head>
 <body>
-<main>
-    <form th:action="@{/login}" method="post">
-        <div>
-            <label for="username" th:text="#{login.username}">Username:</label>
-            <input type="text" id="username" name="username" required>
+<main class="min-vh-100 d-flex align-items-center justify-content-center bg-body-tertiary">
+  <div class="card shadow-sm w-100 login-card">
+    <div class="card-body p-4">
+
+      <h1 class="h4 text-center mb-4" th:text="#{login.title}">Iniciar sesión</h1>
+
+      <div class="alert alert-danger" role="alert" aria-live="polite" th:if="${loginError}">
+        <span th:switch="${loginError}">
+          <span th:case="'badCredentials'" th:text="#{login.error.badCredentials}"></span>
+          <span th:case="'disabled'"       th:text="#{login.error.disabled}"></span>
+          <span th:case="'locked'"         th:text="#{login.error.locked}"></span>
+          <span th:case="*"                th:text="#{login.error}"></span>
+        </span>
+      </div>
+
+      <div class="alert alert-success" role="status" th:if="${param.logout}"
+           th:text="#{login.logout}">Sesión cerrada</div>
+
+      <form th:action="@{/login}" method="post">
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control" id="username" name="username"
+                 placeholder="Usuario" autocomplete="username" required autofocus>
+          <label for="username" th:text="#{login.username}">Usuario</label>
         </div>
-        <div>
-            <label for="password" th:text="#{login.password}">Password:</label>
-            <input type="password" id="password" name="password" required>
+
+        <div class="form-floating mb-3">
+          <input type="password" class="form-control" id="password" name="password"
+                 placeholder="Contraseña" autocomplete="current-password" required>
+          <label for="password" th:text="#{login.password}">Contraseña</label>
         </div>
-        <div>
-            <p th:if="${session.loginError}" th:switch="${session.loginError}">
-              <span th:case="'badCredentials'" th:text="#{login.error.badCredentials}"></span>
-              <span th:case="'disabled'"       th:text="#{login.error.disabled}"></span>
-              <span th:case="'locked'"         th:text="#{login.error.locked}"></span>
-              <span th:case="*"                th:text="#{login.error}"></span>
-            </p>
+
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me">
+            <label class="form-check-label" for="remember-me" th:text="#{login.remember}">Recordarme</label>
         </div>
-        <div>
-            <button type="submit" th:text="#{login.submit}">Login</button>
-        </div>
-    </form>
+
+        <button type="submit" class="btn btn-primary w-100"
+                th:text="#{login.submit}">Entrar</button>
+      </form>
+
+    </div>
+  </div>
 </main>
 </body>
 </html>

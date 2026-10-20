@@ -51,7 +51,7 @@ Abre http://localhost:8080 y entra con `registrador` / `registrador123`.
 
 **Cómo verificar de verdad** (no a ojo):
 ```bash
-docker exec sigotrab-db psql -U sigotrab -d sigotrab -c "\dt"
+docker compose exec postgres psql -U sigotrabuser -d sigotrabdb -c "\dt"
 # ↑ 7 tablas: roles, users, user_roles, job_offer,
 #   job_offer_status_history, audit_event, flyway_schema_history
 ```
