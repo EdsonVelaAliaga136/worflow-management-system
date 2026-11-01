@@ -305,6 +305,8 @@ que crea `admin`, `registrador` y `publicador` usando el `PasswordEncoder`.
 
 **Objetivo:** reglas de transición probadas sin Spring.
 
+> **Guía paso a paso:** `docs/SIGO_Pasos_T2.md` (contratos, reglas, tests y ArchUnit).
+
 ### Paso 1 — Enum y agregado
 
 Crea `domain/model/JobStatus.java` (con `canTransitionTo`) y `domain/model/JobOffer.java`

@@ -132,3 +132,5 @@ con sus invariantes, **sin Spring**. Se prueba con JUnit puro y ArchUnit vigila 
 
 > Regla de oro para avanzar: **primero el dominio, después el caso de uso, al final la
 > web**. Cada ticket añade una rebanada vertical (dominio + aplicación + web + test).
+>
+> **Guía paso a paso:** `docs/SIGO_Pasos_T2.md` (contratos, reglas, tests y ArchUnit).

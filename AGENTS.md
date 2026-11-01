@@ -8,11 +8,13 @@
   - `SIGO_Tutorial_Desarrollo.md` — step-by-step build + "errores comunes" appendix.
   - `SIGO_Guia_Aprendizaje.md` — build-along guide (concepts + why), for learning.
   - `SIGO_Pasos_T1.md` — step-by-step guide for T1 (BD + Flyway + login + dashboard); "you write / I guide" format.
+  - `SIGO_Pasos_T2.md` — step-by-step guide for T2 (domain lifecycle + tests + ArchUnit); "you write / I guide" format.
   - `adr/` — decisions `0006`–`0012`; `GLOSSARY.md` at repo root.
 - `opencode.jsonc` is empty. `.agents/skills/grill-me` is installed but broken: its SKILL.md only calls `grilling`, which is not installed.
 
 ## Current state
 - **T1 is implemented** following `docs/SIGO_Pasos_T1.md`: Flyway `V1`/`V2`, JPA entities/repositories, Spring Security form login, `SeedDevUsers` (`dev`), `SeedAdminUser` (`lan`, ADR-0009), `login.html`/`dashboard.html` with logout, and the message bundle.
+- **T2 guide is ready** (`docs/SIGO_Pasos_T2.md`); T2 code (pure domain + tests + ArchUnit) is not implemented yet.
 - Pending closure: create the T1 commit (working tree is dirty). `SeedAdminUser` only seeds when the DB has no users; `lan` requires `SIGOTRAB_ADMIN_PASSWORD` on first start.
 
 ## Docs-vs-code mismatches (do not "fix" toward the docs)
