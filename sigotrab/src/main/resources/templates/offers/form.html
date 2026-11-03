@@ -2,22 +2,25 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout :: layout(~{::title}, ~{::main})}">
 <head>
-  <title th:text="#{offers.new} + ' - SIGO'">Registrar oferta - SIGO</title>
+  <title th:text="(${editing} ? #{offers.edit.title} : #{offers.new}) + ' - SIGO'">Registrar oferta - SIGO</title>
 </head>
 <body>
 <main id="contenido" class="app-main container">
 
   <div class="masthead">
     <div>
-      <h1 class="mb-1" th:text="#{offers.new}">Registrar oferta</h1>
+      <h1 class="mb-1" th:text="${editing} ? #{offers.edit.title} : #{offers.new}">Registrar oferta</h1>
       <p class="text-body-secondary mb-0" th:text="#{offers.form.hint}">Los campos con * son obligatorios.</p>
     </div>
     <div class="masthead__actions">
-      <a class="btn btn-quiet btn-sm" th:href="@{/offers}" th:text="#{offers.cancel}">Cancelar</a>
+      <a class="btn btn-quiet btn-sm"
+         th:href="${editing} ? @{/offers/{id}(id=${offerId})} : @{/offers}"
+         th:text="#{offers.cancel}">Cancelar</a>
     </div>
   </div>
 
-  <form class="form-sheet" th:action="@{/offers}" th:object="${form}"
+  <form class="form-sheet" th:object="${form}"
+        th:action="${editing} ? @{/offers/{id}/edit(id=${offerId})} : @{/offers}"
         method="post" novalidate>
 
     <div class="alert alert-danger" role="alert" th:if="${#fields.hasGlobalErrors()}">
@@ -148,6 +151,7 @@
                  th:if="${#fields.hasErrors('originalSourceUrl')}" th:errors="*{originalSourceUrl}">Revisa la URL.</div>
           </div>
 
+          <th:block th:if="${editing != true}">
           <div class="mb-3">
             <label class="form-label" for="sourceName" th:text="#{offers.field.sourceName}">Fuente</label>
             <input class="form-control" id="sourceName" name="sourceName" type="text"
@@ -185,14 +189,36 @@
           </div>
 
           <p class="form-text mt-3 mb-0" th:text="#{offers.warn.noSource}">Sin fuente y referencia no se puede deduplicar.</p>
+          </th:block>
+
+          <th:block th:if="${editing == true}">
+          <dl class="dossier__meta mb-0">
+            <div>
+              <dt th:text="#{offers.field.sourceName}">Fuente</dt>
+              <dd th:text="${offer.sourceName} ?: #{offers.notAvailable}">Sin dato</dd>
+            </div>
+            <div>
+              <dt th:text="#{offers.field.externalReference}">Referencia externa</dt>
+              <dd class="mono" th:text="${offer.externalReference} ?: #{offers.notAvailable}">Sin dato</dd>
+            </div>
+            <div>
+              <dt th:text="#{offers.field.extractedAt}">Fecha de extracción</dt>
+              <dd class="mono" th:text="${offer.extractedAt}">2026-01-15 10:00 UTC</dd>
+            </div>
+          </dl>
+          <p class="form-text mt-3 mb-0" th:text="#{offers.edit.sourceLocked}">La procedencia no se puede modificar.</p>
+          </th:block>
         </fieldset>
 
       </div>
     </div>
 
     <div class="form-actions">
-      <button class="btn btn-primary" type="submit" th:text="#{offers.save}">Guardar oferta</button>
-      <a class="btn btn-quiet" th:href="@{/offers}" th:text="#{offers.cancel}">Cancelar</a>
+      <button class="btn btn-primary" type="submit"
+              th:text="${editing} ? #{offers.edit.save} : #{offers.save}">Guardar oferta</button>
+      <a class="btn btn-quiet"
+         th:href="${editing} ? @{/offers/{id}(id=${offerId})} : @{/offers}"
+         th:text="#{offers.cancel}">Cancelar</a>
     </div>
   </form>
 

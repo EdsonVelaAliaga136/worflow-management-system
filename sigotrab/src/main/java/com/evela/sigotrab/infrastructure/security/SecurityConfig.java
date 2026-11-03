@@ -25,7 +25,9 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         // /offers/new tiene matcher propio: gana sobre /offers/**
                         .requestMatchers("/offers/new").hasAnyRole("REGISTRADOR", "ADMIN")
-                        .requestMatchers("/offers/*/edit", "/offers/*/approve", "/offers/*/reject")
+                        // /offers/*/edit cubre GET y POST: editar es curar, no publicar
+                        .requestMatchers("/offers/*/edit").hasAnyRole("REGISTRADOR", "ADMIN")
+                        .requestMatchers("/offers/*/approve", "/offers/*/reject")
                         .hasRole("REGISTRADOR")
                         .requestMatchers("/api/offers/*/acquire", "/offers/*/cancel", "/offers/*/publish")
                         .hasRole("PUBLICADOR")

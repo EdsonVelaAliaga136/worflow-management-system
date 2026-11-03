@@ -10,6 +10,7 @@
   - `SIGO_Pasos_T1.md` — step-by-step guide for T1 (BD + Flyway + login + dashboard); "you write / I guide" format.
   - `SIGO_Pasos_T2.md` — step-by-step guide for T2 (domain lifecycle + tests + ArchUnit); "you write / I guide" format.
   - `SIGO_Pasos_T3.md` — step-by-step guide for T3 (register offer: ports, persistence, audit, web); "you write / I guide" format.
+  - `SIGO_Pasos_T4.md` — step-by-step guide for T4 (edit/curate offer: `UPDATE` audit with old/new, optimistic locking); "you write / I guide" format.
   - `adr/` — decisions `0006`–`0012`; `GLOSSARY.md` at repo root.
 - `opencode.jsonc` is empty. `.agents/skills/` ships the project skills (`grilling`, `grill-me`, `code-review`, `tdd`, `implement`, …); `grill-me` delegates to `grilling`, which is installed.
 
@@ -20,7 +21,11 @@
 - **T3 is implemented** (`docs/SIGO_Pasos_T3.md` is the guide), pending commit. Domain (`reconstitute`, `ActorInfo`, `AuditRecord`, `DuplicateJobOfferException`), ports/services, JPA entity/repo/mapper/adapter, `JpaAuditAdapter` (Jackson 3 `tools.jackson`), `OffersController` (`@PreAuthorize`, global duplicate error), `SecurityConfig`, the full `app.css` theme, `layout.html` (navbar hidden for anonymous) and `offers/list|form|detail|not-found.html`.
 - T3 tests: `RegisterJobOfferServiceTest`, `JobOfferEntityMapperTest`, `OffersControllerTest` (8) and `SecurityRulesTest` (7). `./mvnw -B test` is green (60 tests) when PostgreSQL is up, including `SigotrabApplicationTests` (Flyway + `ddl-auto: validate`).
 - Two pitfalls found while verifying T3 (already fixed in guide + code): `java.text.MessageFormat` does **not** support `plural` (use `offers.total.one`/`.other` + ternary); `LoginUrlAuthenticationEntryPoint` redirects to the **relative** `/login`, so tests assert `redirectedUrl("/login")`, not `**/login`.
-- Pending T3 debt: persistence tests (`@DataJpaTest` for `JobOfferPersistenceAdapter`/`JpaAuditAdapter`) wait for `EmbeddedPostgresSupport` (T9).
+- **T4 is implemented** (`docs/SIGO_Pasos_T4.md` is the guide), pending commit. `UpdateJobOfferUseCase`/`UpdateJobOfferService` (snapshot → `updateContent` → `save` → audit `UPDATE` with `old/new`), `AuditRecord.success(..., old, new)`, `JobOfferEditForm` + `toContent`/`toEditForm`, `GET|POST /offers/{id}/edit`, one `form.html` with an `editing` flag (source fields read-only on edit), detail with `updated`/`error` flashes and an Edit button only for `REGISTERED`, `/offers/*/edit` for `REGISTRADOR`+`ADMIN`.
+- T4 persistence fix: `JobOfferPersistenceAdapter.save` is now an upsert (`findById` + `JobOfferEntityMapper.copyTo`) because saving a detached entity with an assigned id and `version = null` can INSERT or skip `@Version`. Real edit bumps `version` 0→1 (verified against PostgreSQL).
+- T4 tests: `UpdateJobOfferServiceTest` (4), `JobOfferEntityMapperTest` (4), `OffersControllerTest` (15), `SecurityRulesTest` (10) → **75 tests** with `./mvnw -B verify` green.
+- `OffersControllerTest` pins the dual-mode of `form.html`: `newFormRenders` asserts the `sourceName`/`extractedAt` inputs exist, `editFormIsPrefilledWithCurrentValues` asserts they do **not** (read-only `<dl>`). A broken `editing` guard fails a test, not only the browser.
+- Pending debt: persistence tests (`@DataJpaTest` for `JobOfferPersistenceAdapter`/`JpaAuditAdapter`) wait for `EmbeddedPostgresSupport` (T9); T4 edits are verified manually (Paso 13 of the guide) until then.
 - `SeedAdminUser` only seeds when the DB has no users; `lan` requires `SIGOTRAB_ADMIN_PASSWORD` on first start. Demo users (`dev`): `admin/admin123`, `registrador/registrador123`, `publicador/publicador123`.
 
 ## Docs-vs-code mismatches (do not "fix" toward the docs)

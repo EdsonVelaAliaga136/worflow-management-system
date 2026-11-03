@@ -6,9 +6,11 @@ import java.time.format.DateTimeFormatter;
 
 import org.springframework.stereotype.Component;
 
+import com.evela.sigotrab.adapters.web.dto.JobOfferEditForm;
 import com.evela.sigotrab.adapters.web.dto.JobOfferForm;
 import com.evela.sigotrab.adapters.web.dto.JobOfferView;
 import com.evela.sigotrab.domain.model.JobOffer;
+import com.evela.sigotrab.domain.model.JobOfferContent;
 import com.evela.sigotrab.domain.model.JobStatus;
 import com.evela.sigotrab.domain.model.NewJobOffer;
 
@@ -28,6 +30,24 @@ public class JobOfferWebMapper {
                 trimToNull(f.sourceName()),
                 trimToNull(f.externalReference()),
                 f.extractedAt().toInstant(ZoneOffset.UTC));
+    }
+
+    public JobOfferContent toContent(JobOfferEditForm f) {
+        return new JobOfferContent(
+                f.title().trim(),
+                f.company().trim(),
+                f.description(),
+                f.requirements(),
+                trimToNull(f.location()),
+                trimToNull(f.salary()),
+                trimToNull(f.employmentType()),
+                f.originalSourceUrl().trim());
+    }
+
+    public JobOfferEditForm toEditForm(JobOffer o) {
+        return new JobOfferEditForm(
+                o.getTitle(), o.getCompany(), o.getDescription(), o.getRequirements(),
+                o.getLocation(), o.getSalary(), o.getEmploymentType(), o.getOriginalSourceUrl());
     }
 
     public JobOfferView toView(JobOffer o) {

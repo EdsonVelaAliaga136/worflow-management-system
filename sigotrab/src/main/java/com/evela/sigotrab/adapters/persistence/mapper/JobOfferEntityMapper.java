@@ -21,6 +21,15 @@ public class JobOfferEntityMapper {
     public JobOfferJpaEntity toEntity(JobOffer d) {
         var e = new JobOfferJpaEntity();
         e.setId(d.getId());
+        copyTo(e, d);
+        return e;
+    }
+
+    /**
+     * Copia el estado del agregado sobre una entidad ya gestionada.
+     * No toca {@code id} ni {@code version}: Hibernate los necesita para el UPDATE.
+     */
+    public void copyTo(JobOfferJpaEntity e, JobOffer d) {
         e.setTitle(d.getTitle());
         e.setCompany(d.getCompany());
         e.setDescription(d.getDescription());
@@ -43,6 +52,5 @@ public class JobOfferEntityMapper {
         e.setCreatedBy(d.getCreatedBy());
         e.setUpdatedAt(d.getUpdatedAt());
         e.setUpdatedBy(d.getUpdatedBy());
-        return e;
     }
 }

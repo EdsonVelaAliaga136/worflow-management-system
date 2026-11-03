@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +25,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.evela.sigotrab.adapters.web.mapper.JobOfferWebMapper;
 import com.evela.sigotrab.application.port.in.GetJobOffersUseCase;
 import com.evela.sigotrab.application.port.in.RegisterJobOfferUseCase;
+import com.evela.sigotrab.application.port.in.UpdateJobOfferUseCase;
 import com.evela.sigotrab.application.port.out.PageResult;
+import com.evela.sigotrab.domain.model.JobOffer;
+import com.evela.sigotrab.domain.model.NewJobOffer;
 import com.evela.sigotrab.infrastructure.config.MessageConfig;
 import com.evela.sigotrab.infrastructure.security.SecurityConfig;
 import com.evela.sigotrab.infrastructure.security.SigAuthenticationFailureHandler;
@@ -37,6 +41,7 @@ class SecurityRulesTest {
     @Autowired MockMvc mvc;
 
     @MockitoBean RegisterJobOfferUseCase registerJobOffer;
+    @MockitoBean UpdateJobOfferUseCase updateJobOffer;
     @MockitoBean GetJobOffersUseCase getJobOffers;
     @MockitoBean SigAuthenticationFailureHandler failureHandler;
 
@@ -103,5 +108,32 @@ class SecurityRulesTest {
                 .with(csrf())
                 .param("title", "T"))
            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void anonymousCannotOpenEditForm() throws Exception {
+        mvc.perform(get("/offers/{id}/edit", UUID.randomUUID()))
+           .andExpect(status().is3xxRedirection())
+           .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    @WithMockUser(roles = "PUBLICADOR")
+    void publicadorCannotOpenEditForm() throws Exception {
+        mvc.perform(get("/offers/{id}/edit", UUID.randomUUID()))
+           .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void adminCanOpenEditForm() throws Exception {
+        JobOffer offer = JobOffer.register(
+                new NewJobOffer("T", "C", "D", "R", null, null, null,
+                        "https://example.com/1", null, null, Instant.parse("2026-01-15T10:00:00Z")),
+                UUID.randomUUID(), Instant.parse("2026-01-15T10:00:00Z"));
+        when(getJobOffers.getById(offer.getId())).thenReturn(offer);
+
+        mvc.perform(get("/offers/{id}/edit", offer.getId()))
+           .andExpect(status().isOk());
     }
 }

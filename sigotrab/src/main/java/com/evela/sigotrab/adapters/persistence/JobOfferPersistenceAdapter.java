@@ -31,7 +31,12 @@ public class JobOfferPersistenceAdapter implements JobOfferRepository {
 
     @Override
     public void save(JobOffer jobOffer) {
-        jpa.save(mapper.toEntity(jobOffer));
+        // Upsert: si la fila existe se actualiza la entidad gestionada (conserva @Version);
+        // si no existe se inserta. `save()` a secas con id asignado y version null
+        // puede acabar en INSERT y violar la PK.
+        jpa.findById(jobOffer.getId()).ifPresentOrElse(
+                entity -> mapper.copyTo(entity, jobOffer),
+                () -> jpa.save(mapper.toEntity(jobOffer)));
     }
 
     @Override

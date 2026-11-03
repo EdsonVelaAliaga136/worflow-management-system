@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{layout :: layout(~{::title}, ~{::main})}">
 <head>
   <title th:text="${offer.title} + ' - SIGO'">Oferta - SIGO</title>
@@ -13,12 +14,29 @@
     <span th:text="#{offers.created}">Oferta registrada correctamente.</span>
   </div>
 
-  <p class="mb-3">
+  <div class="alert alert-success d-flex align-items-center gap-2" role="status"
+       th:if="${updated}">
+    <i class="bi bi-check2-circle" aria-hidden="true"></i>
+    <span th:text="#{offers.updated}">Oferta actualizada correctamente.</span>
+  </div>
+
+  <div class="alert alert-danger d-flex align-items-center gap-2" role="alert"
+       th:if="${error}">
+    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+    <span th:text="${#messages.msg(error)}">No se pudo editar la oferta.</span>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
     <a class="link-quiet text-decoration-none" th:href="@{/offers/registered}">
       <i class="bi bi-arrow-left" aria-hidden="true"></i>
       <span th:text="#{offers.back}">Volver al listado</span>
     </a>
-  </p>
+    <a class="btn btn-primary btn-sm"
+       sec:authorize="hasAnyRole('REGISTRADOR','ADMIN')"
+       th:if="${offer.status.name() == 'REGISTERED'}"
+       th:href="@{'/offers/' + ${offer.id} + '/edit'}"
+       th:text="#{offers.edit}">Editar oferta</a>
+  </div>
 
   <article class="dossier">
     <header class="dossier__head">
