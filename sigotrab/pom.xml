@@ -33,6 +33,12 @@
         <embedded-postgres-binaries.version>17.5.0</embedded-postgres-binaries.version>
     </properties>
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- Web / vistas / seguridad / datos -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

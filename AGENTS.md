@@ -9,13 +9,19 @@
   - `SIGO_Guia_Aprendizaje.md` — build-along guide (concepts + why), for learning.
   - `SIGO_Pasos_T1.md` — step-by-step guide for T1 (BD + Flyway + login + dashboard); "you write / I guide" format.
   - `SIGO_Pasos_T2.md` — step-by-step guide for T2 (domain lifecycle + tests + ArchUnit); "you write / I guide" format.
+  - `SIGO_Pasos_T3.md` — step-by-step guide for T3 (register offer: ports, persistence, audit, web); "you write / I guide" format.
   - `adr/` — decisions `0006`–`0012`; `GLOSSARY.md` at repo root.
-- `opencode.jsonc` is empty. `.agents/skills/grill-me` is installed but broken: its SKILL.md only calls `grilling`, which is not installed.
+- `opencode.jsonc` is empty. `.agents/skills/` ships the project skills (`grilling`, `grill-me`, `code-review`, `tdd`, `implement`, …); `grill-me` delegates to `grilling`, which is installed.
 
 ## Current state
-- **T1 is implemented** following `docs/SIGO_Pasos_T1.md`: Flyway `V1`/`V2`, JPA entities/repositories, Spring Security form login, `SeedDevUsers` (`dev`), `SeedAdminUser` (`lan`, ADR-0009), `login.html`/`dashboard.html` with logout, and the message bundle.
-- **T2 guide is ready** (`docs/SIGO_Pasos_T2.md`); T2 code (pure domain + tests + ArchUnit) is not implemented yet.
-- Pending closure: create the T1 commit (working tree is dirty). `SeedAdminUser` only seeds when the DB has no users; `lan` requires `SIGOTRAB_ADMIN_PASSWORD` on first start.
+- **T1 and T2 are implemented and committed** (`4aa7f84` T1, `bc1f660` T2).
+  - T1: Flyway `V1`/`V2`, JPA users/roles, Spring Security form login, `SeedDevUsers` (`dev`), `SeedAdminUser` (`lan`, ADR-0009), `login.html`/`dashboard.html`, i18n bundle.
+  - T2: pure `domain/` (`JobOffer`, `JobStatus`, `NewJobOffer`, `JobOfferContent`, six exceptions), `JobOfferTest`, `JobStatusTransitionTest` and `HexagonalArchitectureTest`.
+- **T3 is implemented** (`docs/SIGO_Pasos_T3.md` is the guide), pending commit. Domain (`reconstitute`, `ActorInfo`, `AuditRecord`, `DuplicateJobOfferException`), ports/services, JPA entity/repo/mapper/adapter, `JpaAuditAdapter` (Jackson 3 `tools.jackson`), `OffersController` (`@PreAuthorize`, global duplicate error), `SecurityConfig`, the full `app.css` theme, `layout.html` (navbar hidden for anonymous) and `offers/list|form|detail|not-found.html`.
+- T3 tests: `RegisterJobOfferServiceTest`, `JobOfferEntityMapperTest`, `OffersControllerTest` (8) and `SecurityRulesTest` (7). `./mvnw -B test` is green (60 tests) when PostgreSQL is up, including `SigotrabApplicationTests` (Flyway + `ddl-auto: validate`).
+- Two pitfalls found while verifying T3 (already fixed in guide + code): `java.text.MessageFormat` does **not** support `plural` (use `offers.total.one`/`.other` + ternary); `LoginUrlAuthenticationEntryPoint` redirects to the **relative** `/login`, so tests assert `redirectedUrl("/login")`, not `**/login`.
+- Pending T3 debt: persistence tests (`@DataJpaTest` for `JobOfferPersistenceAdapter`/`JpaAuditAdapter`) wait for `EmbeddedPostgresSupport` (T9).
+- `SeedAdminUser` only seeds when the DB has no users; `lan` requires `SIGOTRAB_ADMIN_PASSWORD` on first start. Demo users (`dev`): `admin/admin123`, `registrador/registrador123`, `publicador/publicador123`.
 
 ## Docs-vs-code mismatches (do not "fix" toward the docs)
 - Package/groupId are `com.evela.sigotrab`; plan/spec consistently say `com.sigotrab`. Follow the code.
@@ -32,8 +38,8 @@
 java -jar target/sigotrab-0.0.1-SNAPSHOT.jar --spring.profiles.active=lan
 ```
 - Prereqs: Java 25 + PostgreSQL (17/18). Create the DB first: `CREATE ROLE sigotrabuser LOGIN PASSWORD 'change-me'; CREATE DATABASE sigotrabdb OWNER sigotrabuser;`
-- `./mvnw test` currently fails without a local PostgreSQL: the only test is `@SpringBootTest`, and no test profile / embedded-PG wiring exists. Plan §4.12 specifies Zonky `embedded-postgres` (dependency already in `pom.xml`); write its `EmbeddedPostgresSupport` before adding integration tests.
-- Flyway `V1__baseline.sql` / `V2__seed_roles.sql` (plan §4.4) now exist; the `users`/`roles`/`user_roles` tables are mapped by entities and checked by `ddl-auto: validate`.
+- `./mvnw test` still fails without a local PostgreSQL because `SigotrabApplicationTests` is a `@SpringBootTest`. Focused domain tests run without a DB: `./mvnw test -Dtest="Job*Test,HexagonalArchitectureTest"`. Plan §4.12 specifies Zonky `embedded-postgres` (dependency already in `pom.xml`); write `EmbeddedPostgresSupport` before adding `@DataJpaTest`/integration tests (debt for T9).
+- Flyway `V1__baseline.sql` / `V2__seed_roles.sql` (plan §4.4) exist. `users`/`roles`/`user_roles` are mapped today; `job_offer`, `job_offer_status_history` and `audit_event` already exist and are used from T3. All are checked by `ddl-auto: validate`.
 
 ## Spring Boot 4 quirks (tutorial App. C)
 - Starters are renamed per module: `spring-boot-starter-webmvc` (not `-web`), `spring-boot-starter-flyway`, and test starters like `spring-boot-starter-webmvc-test` / `-data-jpa-test` / `-security-test`.
@@ -42,7 +48,7 @@ java -jar target/sigotrab-0.0.1-SNAPSHOT.jar --spring.profiles.active=lan
 - `spring.messages.basename` was not honored in this setup; messages were wired with an explicit `MessageSource` bean (basename `messages/messages`, UTF-8).
 
 ## Conventions (plan §3, §10)
-- Hexagonal: `domain/`, `application/{port/{in,out},service}`, `adapters/{web,persistence}`, `infrastructure/{security,scheduler,audit,config}`. Domain must not import Spring/JPA/Hibernate/Thymeleaf; ArchUnit is meant to enforce this (test not written yet).
+- Hexagonal: `domain/`, `application/{port/{in,out},service}`, `adapters/{web,persistence}`, `infrastructure/{security,scheduler,audit,config}`. Domain must not import Spring/JPA/Hibernate/Thymeleaf; `HexagonalArchitectureTest` (ArchUnit) enforces it.
 - `@Transactional` only in `application`; controllers depend on `port/in`, never on JPA.
 - Concurrency authority is the DB via the atomic `UPDATE ... WHERE status='APPROVED' OR (status='IN_PROGRESS' AND lock_expires_at < :now)`; never `synchronized`.
 - Manual mappers + records. Lombok **is** used in JPA entities (`pom.xml` has the dependency + processor path; ADR-0012) but **not** in `domain/`.

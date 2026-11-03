@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SigotrabApplication<sigotrab>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.evela.sigotrab.SigotrabApplication",
+            "projectName": "sigotrab",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

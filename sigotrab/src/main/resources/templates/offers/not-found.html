@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head><title th:text="#{offers.notFound.title} + ' - SIGO'">Oferta no encontrada - SIGO</title></head>
+<body>
+<main id="contenido" class="app-main container">
+  <div class="blank">
+    <p class="blank__mark" aria-hidden="true">404</p>
+    <h1 class="h3" th:text="#{offers.notFound.title}">Esta oferta no está en el registro</h1>
+    <p class="text-body-secondary" th:text="#{offers.notFound}">La oferta solicitada no existe.</p>
+    <a class="btn btn-primary" th:href="@{/offers}" th:text="#{offers.back}">Volver al listado</a>
+  </div>
+</main>
+</body>
+</html>

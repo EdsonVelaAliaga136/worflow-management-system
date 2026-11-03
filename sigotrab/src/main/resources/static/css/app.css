@@ -1,3 +1,365 @@
-.login-card {
-  max-width: 24rem;
+/* ==========================================================================
+   SIGO - tema "mesa de curaduria"
+   Bootstrap 5 aporta rejilla y utilidades; aqui vive la identidad.
+   Sin fuentes externas: la app corre en LAN sin internet.
+   ========================================================================== */
+
+:root {
+  --sigo-petrol: #10454d;
+  --sigo-petrol-dark: #0b333a;
+  --sigo-ink: #16262e;
+  --sigo-muted: #56686e;
+  --sigo-paper: #eef2f1;
+  --sigo-surface: #ffffff;
+  --sigo-line: #cfdad8;
+  --sigo-amber: #8f5c12;
+
+  --sigo-status-registered: #8f5c12;
+  --sigo-status-approved: #2b5c96;
+  --sigo-status-progress: #1d6f66;
+  --sigo-status-published: #2f6b3a;
+  --sigo-status-rejected: #9c3b32;
+
+  --sigo-font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, ui-serif, serif;
+  --sigo-font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --sigo-font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+
+  --sigo-radius: .375rem;
+  --sigo-shadow: 0 1px 2px rgba(22, 38, 46, .06), 0 18px 40px -32px rgba(22, 38, 46, .55);
+
+  /* Tokens de Bootstrap que se pueden redefinir sin recompilar */
+  --bs-body-bg: var(--sigo-paper);
+  --bs-body-color: var(--sigo-ink);
+  --bs-body-font-family: var(--sigo-font-ui);
+  --bs-border-color: var(--sigo-line);
+  --bs-link-color: var(--sigo-petrol);
+  --bs-link-hover-color: var(--sigo-petrol-dark);
+  --bs-focus-ring-color: rgba(143, 92, 18, .35);
+}
+
+body {
+  background: var(--sigo-paper);
+  color: var(--sigo-ink);
+  font-family: var(--sigo-font-ui);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--sigo-font-display);
+  font-weight: 600;
+  letter-spacing: -.01em;
+  color: var(--sigo-ink);
+}
+h1 { font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem); line-height: 1.15; }
+h2 { font-size: 1.35rem; }
+
+a { text-underline-offset: .15em; }
+.prose { max-width: 68ch; }
+.mono { font-family: var(--sigo-font-mono); font-size: .875rem; }
+.link-quiet { color: var(--sigo-muted); }
+.link-quiet:hover { color: var(--sigo-ink); }
+
+/* Foco visible y consistente: no lo quites, cambia su forma. */
+:focus-visible {
+  outline: 3px solid var(--sigo-amber);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* --- Botones: se redefinen los tokens de Bootstrap ---------------------- */
+.btn { --bs-btn-font-weight: 600; --bs-btn-padding-x: 1rem; }
+
+.btn-primary {
+  --bs-btn-bg: var(--sigo-petrol);
+  --bs-btn-border-color: var(--sigo-petrol);
+  --bs-btn-hover-bg: var(--sigo-petrol-dark);
+  --bs-btn-hover-border-color: var(--sigo-petrol-dark);
+  --bs-btn-active-bg: var(--sigo-petrol-dark);
+  --bs-btn-active-border-color: var(--sigo-petrol-dark);
+  --bs-btn-disabled-bg: var(--sigo-petrol);
+  --bs-btn-disabled-border-color: var(--sigo-petrol);
+}
+
+.btn-quiet {
+  background: var(--sigo-surface);
+  --bs-btn-color: var(--sigo-petrol);
+  --bs-btn-border-color: var(--sigo-line);
+  --bs-btn-hover-bg: #e3eae8;
+  --bs-btn-hover-border-color: var(--sigo-line);
+  --bs-btn-hover-color: var(--sigo-petrol-dark);
+  --bs-btn-active-bg: #dbe4e1;
+  --bs-btn-active-color: var(--sigo-petrol-dark);
+}
+
+/* --- Barra de navegacion ------------------------------------------------ */
+.app-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background: var(--sigo-surface);
+  border-bottom: 1px solid var(--sigo-line);
+}
+.app-nav .navbar-brand {
+  font-family: var(--sigo-font-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: var(--sigo-ink);
+}
+.app-nav .nav-link {
+  color: var(--sigo-muted);
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  padding-block: .35rem;
+}
+.app-nav .nav-link:hover { color: var(--sigo-ink); }
+.app-nav .nav-link[aria-current="page"] {
+  color: var(--sigo-ink);
+  border-bottom-color: var(--sigo-amber);
+}
+.app-nav .navbar-toggler { border-color: var(--sigo-line); }
+@media (max-width: 991.98px) {
+  .app-nav .navbar-collapse { padding-block: .75rem; }
+}
+
+/* --- Contenedor --------------------------------------------------------- */
+.app-main { padding-block: 2rem 4rem; }
+@media (min-width: 768px) { .app-main { padding-block: 2.75rem 5rem; } }
+
+/* --- Cabecera de registro (masthead) ------------------------------------ */
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  padding-bottom: .9rem;
+  border-bottom: 2px solid var(--sigo-ink);
+  margin-bottom: 1.5rem;
+}
+.masthead__count {
+  font-family: var(--sigo-font-mono);
+  font-size: .8125rem;
+  color: var(--sigo-muted);
+  letter-spacing: .02em;
+}
+.masthead__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+@media (max-width: 575.98px) {
+  .masthead__actions { width: 100%; }
+  .masthead__actions .btn { flex: 1 1 auto; }
+}
+
+/* --- Sello de estado (el unico elemento con caracter) ------------------- */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .18rem .5rem .16rem;
+  border: 1.5px solid currentColor;
+  border-radius: .2rem;
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+  background: var(--sigo-surface);
+  color: var(--sigo-muted);
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.seal--registered { color: var(--sigo-status-registered); background: #fbf4e8; }
+.seal--approved   { color: var(--sigo-status-approved);   background: #eef3fa; }
+.seal--in_progress { color: var(--sigo-status-progress);  background: #eaf4f2; }
+.seal--published  { color: var(--sigo-status-published);  background: #edf5ee; }
+.seal--rejected   { color: var(--sigo-status-rejected);   background: #fbeeec; }
+.seal--lg { font-size: .8125rem; padding: .35rem .8rem; transform: rotate(-1.5deg); }
+
+/* --- Registro: lista tipo ledger ---------------------------------------- */
+.ledger { border-top: 1px solid var(--sigo-line); }
+.ledger__head,
+.ledger__row {
+  display: grid;
+  grid-template-columns: minmax(0, 2.4fr) minmax(0, 1.3fr) auto minmax(0, .85fr) 1.25rem;
+  align-items: center;
+  gap: .75rem 1.25rem;
+  padding: .85rem .25rem .85rem .9rem;
+  position: relative;
+}
+.ledger__head {
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--sigo-muted);
+  border-bottom: 1px solid var(--sigo-line);
+}
+.ledger__body { margin: 0; padding: 0; list-style: none; }
+.ledger__row {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--sigo-line);
+  transition: background-color .12s ease;
+}
+.ledger__row::before {
+  content: "";
+  position: absolute;
+  inset: .55rem auto .55rem 0;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--sigo-row-accent, transparent);
+}
+.ledger__row:hover { background: #e7edeb; }
+.ledger__row:focus-visible { outline-offset: -3px; }
+.ledger__title { font-weight: 600; }
+.ledger__company { color: var(--sigo-muted); }
+.ledger__date { font-family: var(--sigo-font-mono); font-size: .8125rem; color: var(--sigo-muted); }
+.ledger__go { color: var(--sigo-muted); }
+.ledger__row:hover .ledger__go { color: var(--sigo-ink); }
+
+.ledger__row--registered  { --sigo-row-accent: var(--sigo-status-registered); }
+.ledger__row--approved    { --sigo-row-accent: var(--sigo-status-approved); }
+.ledger__row--in_progress { --sigo-row-accent: var(--sigo-status-progress); }
+.ledger__row--published   { --sigo-row-accent: var(--sigo-status-published); }
+.ledger__row--rejected    { --sigo-row-accent: var(--sigo-status-rejected); }
+
+@media (max-width: 767.98px) {
+  .ledger__head { display: none; }
+  .ledger__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "title   seal"
+      "company date";
+    gap: .25rem .75rem;
+    padding: 1rem .5rem 1rem .9rem;
+  }
+  .ledger__title { grid-area: title; }
+  .ledger__company { grid-area: company; }
+  .ledger__status { grid-area: seal; justify-self: end; }
+  .ledger__date { grid-area: date; justify-self: end; }
+  .ledger__go { display: none; }
+}
+
+/* --- Paginacion --------------------------------------------------------- */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.25rem;
+}
+.pager__status {
+  font-family: var(--sigo-font-mono);
+  font-size: .8125rem;
+  color: var(--sigo-muted);
+}
+
+/* --- Ficha de detalle --------------------------------------------------- */
+.dossier {
+  background: var(--sigo-surface);
+  border: 1px solid var(--sigo-line);
+  border-radius: var(--sigo-radius);
+  box-shadow: var(--sigo-shadow);
+  padding: clamp(1.25rem, 1rem + 1.5vw, 2.5rem);
+}
+.dossier__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--sigo-line);
+  margin-bottom: 1.5rem;
+}
+.dossier__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem 1.5rem;
+  margin: 0;
+}
+.dossier__meta dt {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--sigo-muted);
+  letter-spacing: .03em;
+}
+.dossier__meta dd { margin: .15rem 0 0; overflow-wrap: anywhere; }
+.dossier__section + .dossier__section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--sigo-line);
+}
+.dossier__section h2 { font-size: 1.1rem; margin-bottom: .5rem; }
+.dossier__text { white-space: pre-line; max-width: 68ch; }
+
+/* --- Formulario --------------------------------------------------------- */
+.form-sheet {
+  background: var(--sigo-surface);
+  border: 1px solid var(--sigo-line);
+  border-radius: var(--sigo-radius);
+  box-shadow: var(--sigo-shadow);
+  padding: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+}
+.form-section { border: 0; padding: 0; margin: 0 0 2rem; min-width: 0; }
+.form-section:last-of-type { margin-bottom: 0; }
+.form-section > legend {
+  float: none;
+  width: 100%;
+  font-family: var(--sigo-font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding-bottom: .4rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--sigo-line);
+}
+.form-label { font-weight: 600; font-size: .875rem; }
+.form-text { color: var(--sigo-muted); }
+.form-control, .form-select { border-color: var(--sigo-line); }
+.form-control:focus, .form-select:focus {
+  border-color: var(--sigo-petrol);
+  box-shadow: 0 0 0 .2rem rgba(16, 69, 77, .15);
+}
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  padding-top: 1.25rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--sigo-line);
+}
+.req { color: var(--sigo-status-rejected); }
+@media (max-width: 575.98px) {
+  .form-actions .btn { flex: 1 1 auto; }
+}
+
+/* --- Estados vacios y 404 ----------------------------------------------- */
+.blank {
+  background: var(--sigo-surface);
+  border: 1px solid var(--sigo-line);
+  border-radius: var(--sigo-radius);
+  padding: clamp(2rem, 1.5rem + 3vw, 4rem);
+  text-align: center;
+  max-width: 40rem;
+  margin-inline: auto;
+}
+.blank__mark {
+  font-family: var(--sigo-font-display);
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--sigo-line);
+  margin-bottom: 1rem;
+}
+
+/* --- Login -------------------------------------------------------------- */
+.login-card { max-width: 24rem; border-top: 3px solid var(--sigo-petrol); }
+
+/* --- Movimiento: solo como respuesta ------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .seal--lg { transform: none; }
 }

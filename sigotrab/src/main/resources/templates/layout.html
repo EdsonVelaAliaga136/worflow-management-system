@@ -1,17 +1,57 @@
-<!-- templates/layout.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      th:fragment="layout(title, content)">
+      th:fragment="layout(title, content)"
+      lang="es">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title th:replace="${title}">SIGO</title>
   <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}"/>
   <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.13.2/font/bootstrap-icons.min.css}"/>
   <link rel="stylesheet" th:href="@{/css/app.css}"/>
 </head>
 <body>
-  <main th:replace="${content}"></main>
-  <script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}"></script>
+
+<a class="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-sm btn-primary"
+   href="#contenido" th:text="#{nav.skip}">Saltar al contenido</a>
+
+<header class="app-nav navbar navbar-expand-lg" sec:authorize="isAuthenticated()">
+  <div class="container">
+    <a class="navbar-brand me-4" th:href="@{/dashboard}">SIGO</a>
+
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navPrincipal"
+            aria-controls="navPrincipal" aria-expanded="false"
+            aria-label="Abrir menú">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <nav class="collapse navbar-collapse" id="navPrincipal" aria-label="Principal">
+      <div class="navbar-nav me-auto">
+        <a class="nav-link" th:href="@{/dashboard}"
+           th:attr="aria-current=${activeNav == 'dashboard'} ? 'page' : null"
+           th:text="#{nav.dashboard}">Panel</a>
+        <a class="nav-link" th:href="@{/offers}"
+           th:attr="aria-current=${activeNav == 'offers'} ? 'page' : null"
+           th:text="#{nav.offers}">Ofertas</a>
+        <a class="nav-link" sec:authorize="hasAnyRole('REGISTRADOR','ADMIN')"
+           th:href="@{/offers/new}"
+           th:attr="aria-current=${activeNav == 'new'} ? 'page' : null"
+           th:text="#{nav.new}">Registrar</a>
+      </div>
+
+      <form class="d-flex align-items-center gap-3 mt-3 mt-lg-0"
+            th:action="@{/logout}" method="post">
+        <span class="small text-body-secondary" th:text="${#authentication.name}">usuario</span>
+        <button type="submit" class="btn btn-sm btn-quiet" th:text="#{nav.logout}">Salir</button>
+      </form>
+    </nav>
+  </div>
+</header>
+
+<th:block th:replace="${content}"></th:block>
+
+<script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

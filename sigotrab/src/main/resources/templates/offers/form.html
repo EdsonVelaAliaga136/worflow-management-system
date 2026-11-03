@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+  <title th:text="#{offers.new} + ' - SIGO'">Registrar oferta - SIGO</title>
+</head>
+<body>
+<main id="contenido" class="app-main container">
+
+  <div class="masthead">
+    <div>
+      <h1 class="mb-1" th:text="#{offers.new}">Registrar oferta</h1>
+      <p class="text-body-secondary mb-0" th:text="#{offers.form.hint}">Los campos con * son obligatorios.</p>
+    </div>
+    <div class="masthead__actions">
+      <a class="btn btn-quiet btn-sm" th:href="@{/offers}" th:text="#{offers.cancel}">Cancelar</a>
+    </div>
+  </div>
+
+  <form class="form-sheet" th:action="@{/offers}" th:object="${form}"
+        method="post" novalidate>
+
+    <div class="alert alert-danger" role="alert" th:if="${#fields.hasGlobalErrors()}">
+      <p class="fw-semibold mb-1" th:text="#{offers.form.errors}">Revisa la oferta antes de guardarla.</p>
+      <ul class="mb-0">
+        <li th:each="e : ${#fields.globalErrors()}" th:text="${e}">Error</li>
+      </ul>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+
+        <fieldset class="form-section">
+          <legend th:text="#{offers.form.section.job}">Puesto</legend>
+
+          <div class="mb-3">
+            <label class="form-label" for="title">
+              <span th:text="#{offers.field.title}">Título</span>
+              <span class="req" aria-hidden="true">*</span>
+            </label>
+            <input class="form-control" id="title" name="title" type="text"
+                   maxlength="200" required th:value="${form.title}"
+                   th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'"
+                   th:attr="aria-describedby=${#fields.hasErrors('title')} ? 'title-error' : null">
+            <div class="invalid-feedback" id="title-error"
+                 th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Indica un título.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="company">
+              <span th:text="#{offers.field.company}">Empresa</span>
+              <span class="req" aria-hidden="true">*</span>
+            </label>
+            <input class="form-control" id="company" name="company" type="text"
+                   maxlength="150" required th:value="${form.company}"
+                   th:classappend="${#fields.hasErrors('company')} ? 'is-invalid'"
+                   th:attr="aria-describedby=${#fields.hasErrors('company')} ? 'company-error' : null">
+            <div class="invalid-feedback" id="company-error"
+                 th:if="${#fields.hasErrors('company')}" th:errors="*{company}">Indica la empresa.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="description">
+              <span th:text="#{offers.field.description}">Descripción</span>
+              <span class="req" aria-hidden="true">*</span>
+            </label>
+            <textarea class="form-control" id="description" name="description" rows="6" required
+                      th:text="${form.description}"
+                      th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+                      th:attr="aria-describedby=${#fields.hasErrors('description')} ? 'description-help description-error' : 'description-help'"></textarea>
+            <div class="form-text" id="description-help"
+                 th:text="#{offers.field.description.help}">Qué se ofrece y a quién.</div>
+            <div class="invalid-feedback" id="description-error"
+                 th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Describe la oferta.</div>
+          </div>
+
+          <div class="mb-0">
+            <label class="form-label" for="requirements">
+              <span th:text="#{offers.field.requirements}">Requisitos</span>
+              <span class="req" aria-hidden="true">*</span>
+            </label>
+            <textarea class="form-control" id="requirements" name="requirements" rows="6" required
+                      th:text="${form.requirements}"
+                      th:classappend="${#fields.hasErrors('requirements')} ? 'is-invalid'"
+                      th:attr="aria-describedby=${#fields.hasErrors('requirements')} ? 'requirements-help requirements-error' : 'requirements-help'"></textarea>
+            <div class="form-text" id="requirements-help"
+                 th:text="#{offers.field.requirements.help}">Formación, experiencia y habilidades.</div>
+            <div class="invalid-feedback" id="requirements-error"
+                 th:if="${#fields.hasErrors('requirements')}" th:errors="*{requirements}">Indica los requisitos.</div>
+          </div>
+        </fieldset>
+
+      </div>
+
+      <div class="col-lg-5">
+
+        <fieldset class="form-section">
+          <legend th:text="#{offers.form.section.conditions}">Condiciones</legend>
+
+          <div class="mb-3">
+            <label class="form-label" for="location" th:text="#{offers.field.location}">Ubicación</label>
+            <input class="form-control" id="location" name="location" type="text"
+                   maxlength="150" th:value="${form.location}"
+                   th:classappend="${#fields.hasErrors('location')} ? 'is-invalid'"
+                   th:attr="aria-describedby=${#fields.hasErrors('location')} ? 'location-error' : null">
+            <div class="invalid-feedback" id="location-error"
+                 th:if="${#fields.hasErrors('location')}" th:errors="*{location}">Revisa la ubicación.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="salary" th:text="#{offers.field.salary}">Salario</label>
+            <input class="form-control" id="salary" name="salary" type="text"
+                   maxlength="100" th:value="${form.salary}"
+                   th:classappend="${#fields.hasErrors('salary')} ? 'is-invalid'"
+                   th:attr="aria-describedby=${#fields.hasErrors('salary')} ? 'salary-error' : null">
+            <div class="invalid-feedback" id="salary-error"
+                 th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}">Revisa el salario.</div>
+          </div>
+
+          <div class="mb-0">
+            <label class="form-label" for="employmentType"
+                   th:text="#{offers.field.employmentType}">Tipo de contratación</label>
+            <input class="form-control" id="employmentType" name="employmentType" type="text"
+                   maxlength="50" th:value="${form.employmentType}"
+                   th:classappend="${#fields.hasErrors('employmentType')} ? 'is-invalid'"
+                   th:attr="aria-describedby=${#fields.hasErrors('employmentType')} ? 'employmentType-error' : null">
+            <div class="invalid-feedback" id="employmentType-error"
+                 th:if="${#fields.hasErrors('employmentType')}" th:errors="*{employmentType}">Revisa el tipo.</div>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-section">
+          <legend th:text="#{offers.form.section.source}">Procedencia</legend>
+
+          <div class="mb-3">
+            <label class="form-label" for="originalSourceUrl">
+              <span th:text="#{offers.field.originalSourceUrl}">URL de origen</span>
+              <span class="req" aria-hidden="true">*</span>
+            </label>
+            <input class="form-control" id="originalSourceUrl" name="originalSourceUrl"
+                   type="url" inputmode="url" maxlength="500" required
+                   placeholder="https://" th:value="${form.originalSourceUrl}"
+                   th:classappend="${#fields.hasErrors('originalSourceUrl')} ? 'is-invalid'"
+                   th:attr="aria-describedby=${#fields.hasErrors('originalSourceUrl')} ? 'sourceUrl-help sourceUrl-error' : 'sourceUrl-help'">
+            <div class="form-text" id="sourceUrl-help"
+                 th:text="#{offers.field.originalSourceUrl.help}">Debe empezar por http:// o https://.</div>
+            <div class="invalid-feedback" id="sourceUrl-error"
+                 th:if="${#fields.hasErrors('originalSourceUrl')}" th:errors="*{originalSourceUrl}">Revisa la URL.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="sourceName" th:text="#{offers.field.sourceName}">Fuente</label>
+            <input class="form-control" id="sourceName" name="sourceName" type="text"
+                   maxlength="60" th:value="${form.sourceName}"
+                   th:classappend="${#fields.hasErrors('sourceName')} ? 'is-invalid'"
+                   th:attr="aria-describedby='sourceName-help'">
+            <div class="form-text" id="sourceName-help"
+                 th:text="#{offers.field.sourceName.help}">Portal o bolsa de empleo de dónde salió.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="externalReference"
+                   th:text="#{offers.field.externalReference}">Referencia externa</label>
+            <input class="form-control" id="externalReference" name="externalReference" type="text"
+                   maxlength="120" th:value="${form.externalReference}"
+                   th:classappend="${#fields.hasErrors('externalReference')} ? 'is-invalid'"
+                   th:attr="aria-describedby='externalReference-help'">
+            <div class="form-text" id="externalReference-help"
+                 th:text="#{offers.field.externalReference.help}">Identificador de la oferta en esa fuente.</div>
+          </div>
+
+          <div class="mb-0">
+            <label class="form-label" for="extractedAt">
+              <span th:text="#{offers.field.extractedAt}">Fecha de extracción</span>
+              <span class="req" aria-hidden="true">*</span>
+            </label>
+            <input class="form-control" id="extractedAt" name="extractedAt"
+                   type="datetime-local" step="60" required th:value="${form.extractedAt}"
+                   th:classappend="${#fields.hasErrors('extractedAt')} ? 'is-invalid'"
+                   th:attr="aria-describedby=${#fields.hasErrors('extractedAt')} ? 'extractedAt-help extractedAt-error' : 'extractedAt-help'">
+            <div class="form-text" id="extractedAt-help"
+                 th:text="#{offers.field.extractedAt.help}">Cuándo se copió de la fuente.</div>
+            <div class="invalid-feedback" id="extractedAt-error"
+                 th:if="${#fields.hasErrors('extractedAt')}" th:errors="*{extractedAt}">Indica la fecha.</div>
+          </div>
+
+          <p class="form-text mt-3 mb-0" th:text="#{offers.warn.noSource}">Sin fuente y referencia no se puede deduplicar.</p>
+        </fieldset>
+
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit" th:text="#{offers.save}">Guardar oferta</button>
+      <a class="btn btn-quiet" th:href="@{/offers}" th:text="#{offers.cancel}">Cancelar</a>
+    </div>
+  </form>
+
+</main>
+</body>
+</html>

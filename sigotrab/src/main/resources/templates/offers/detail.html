@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+  <title th:text="${offer.title} + ' - SIGO'">Oferta - SIGO</title>
+</head>
+<body>
+<main id="contenido" class="app-main container">
+
+  <div class="alert alert-success d-flex align-items-center gap-2" role="status"
+       th:if="${success}">
+    <i class="bi bi-check2-circle" aria-hidden="true"></i>
+    <span th:text="#{offers.created}">Oferta registrada correctamente.</span>
+  </div>
+
+  <p class="mb-3">
+    <a class="link-quiet text-decoration-none" th:href="@{/offers/registered}">
+      <i class="bi bi-arrow-left" aria-hidden="true"></i>
+      <span th:text="#{offers.back}">Volver al listado</span>
+    </a>
+  </p>
+
+  <article class="dossier">
+    <header class="dossier__head">
+      <div>
+        <p class="mono text-body-secondary mb-1"
+           th:text="${offer.externalReference != null
+                       ? offer.externalReference
+                       : #strings.substring(offer.id.toString(), 0, 8)}">REF</p>
+        <h1 class="mb-1" th:text="${offer.title}">Analista de datos</h1>
+        <p class="mb-0 text-body-secondary" th:text="${offer.company}">ACME</p>
+      </div>
+      <span class="seal seal--lg"
+            th:classappend="'seal--' + ${#strings.toLowerCase(offer.status.name())}"
+            th:text="${offer.statusLabel}">Registrada</span>
+    </header>
+
+    <dl class="dossier__meta">
+      <div>
+        <dt th:text="#{offers.field.status}">Estado</dt>
+        <dd th:text="${offer.statusLabel}">Registrada</dd>
+      </div>
+      <div>
+        <dt th:text="#{offers.field.location}">Ubicación</dt>
+        <dd th:text="${offer.location} ?: #{offers.notAvailable}">Sin dato</dd>
+      </div>
+      <div>
+        <dt th:text="#{offers.field.salary}">Salario</dt>
+        <dd th:text="${offer.salary} ?: #{offers.notAvailable}">Sin dato</dd>
+      </div>
+      <div>
+        <dt th:text="#{offers.field.employmentType}">Tipo de contratación</dt>
+        <dd th:text="${offer.employmentType} ?: #{offers.notAvailable}">Sin dato</dd>
+      </div>
+      <div>
+        <dt th:text="#{offers.field.extractedAt}">Fecha de extracción</dt>
+        <dd class="mono" th:text="${offer.extractedAt}">2026-01-15 10:00 UTC</dd>
+      </div>
+      <div>
+        <dt th:text="#{offers.field.createdAt}">Creada</dt>
+        <dd class="mono" th:text="${offer.createdAt}">2026-01-15 10:00 UTC</dd>
+      </div>
+      <div>
+        <dt th:text="#{offers.field.updatedAt}">Actualizada</dt>
+        <dd class="mono" th:text="${offer.updatedAt}">2026-01-15 10:00 UTC</dd>
+      </div>
+    </dl>
+
+    <section class="dossier__section">
+      <h2 th:text="#{offers.field.description}">Descripción</h2>
+      <p class="dossier__text" th:text="${offer.description}">Texto de la oferta.</p>
+    </section>
+
+    <section class="dossier__section">
+      <h2 th:text="#{offers.field.requirements}">Requisitos</h2>
+      <p class="dossier__text" th:text="${offer.requirements}">Requisitos de la oferta.</p>
+    </section>
+
+    <section class="dossier__section">
+      <h2 th:text="#{offers.form.section.source}">Procedencia</h2>
+      <dl class="dossier__meta">
+        <div>
+          <dt th:text="#{offers.field.sourceName}">Fuente</dt>
+          <dd th:text="${offer.sourceName} ?: #{offers.notAvailable}">Sin dato</dd>
+        </div>
+        <div>
+          <dt th:text="#{offers.field.externalReference}">Referencia externa</dt>
+          <dd class="mono" th:text="${offer.externalReference} ?: #{offers.notAvailable}">Sin dato</dd>
+        </div>
+        <div th:if="${offer.publicationUrl != null}">
+          <dt th:text="#{offers.field.publicationUrl}">URL de publicación</dt>
+          <dd>
+            <a th:href="${offer.publicationUrl}" target="_blank" rel="noopener noreferrer"
+               th:text="${offer.publicationUrl}">https://</a>
+          </dd>
+        </div>
+        <div>
+          <dt th:text="#{offers.field.originalSourceUrl}">URL de origen</dt>
+          <dd>
+            <a th:href="${offer.originalSourceUrl}" target="_blank" rel="noopener noreferrer"
+               th:text="${offer.originalSourceUrl}">https://</a>
+          </dd>
+        </div>
+      </dl>
+    </section>
+  </article>
+
+</main>
+</body>
+</html>

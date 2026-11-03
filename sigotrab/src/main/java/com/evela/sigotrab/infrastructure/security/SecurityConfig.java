@@ -23,10 +23,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/webjars/**", "/login", "/error").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/offers/new", "/offers/*/edit", "/offers/*/approve", "/offers/*/reject")
+                        // /offers/new tiene matcher propio: gana sobre /offers/**
+                        .requestMatchers("/offers/new").hasAnyRole("REGISTRADOR", "ADMIN")
+                        .requestMatchers("/offers/*/edit", "/offers/*/approve", "/offers/*/reject")
                         .hasRole("REGISTRADOR")
                         .requestMatchers("/api/offers/*/acquire", "/offers/*/cancel", "/offers/*/publish")
                         .hasRole("PUBLICADOR")
+                        .requestMatchers("/offers/**").hasAnyRole("REGISTRADOR", "ADMIN")
                         .requestMatchers("/reports/**").hasAnyRole("ADMIN", "REGISTRADOR")
                         .requestMatchers("/audit/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

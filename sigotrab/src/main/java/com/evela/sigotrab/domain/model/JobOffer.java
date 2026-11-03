@@ -10,7 +10,6 @@ import com.evela.sigotrab.domain.exception.InvalidTransitionException;
 import com.evela.sigotrab.domain.exception.RejectionReasonRequiredException;
 import com.evela.sigotrab.domain.exception.UnauthorizedJobOperationException;
 
- 
 public class JobOffer {
     private final UUID id;
     private String title;
@@ -36,7 +35,44 @@ public class JobOffer {
     private Instant updatedAt;
     private UUID updatedBy;
 
-    private JobOffer(UUID id, NewJobOffer data, UUID actor, Instant now){
+    
+    // Constructor privado exclusivo para reconstruir desde la base de datos (Mapper / JPA)
+    private JobOffer(
+            UUID id,
+            String title, String company, String description, String requirements,
+            String location, String salary, String employmentType,
+            String originalSourceUrl, String sourceName, String externalReference,
+            Instant extractedAt, String publicationUrl,
+            JobStatus status, UUID assignedUserId, Instant lockedAt, Instant lockExpiresAt,
+            Instant approvedAt, Instant publishedAt,
+            Instant createdAt, UUID createdBy, Instant updatedAt, UUID updatedBy
+    ) {
+        this.id = id;
+        this.title = title;
+        this.company = company;
+        this.description = description;
+        this.requirements = requirements;
+        this.location = location;
+        this.salary = salary;
+        this.employmentType = employmentType;
+        this.originalSourceUrl = originalSourceUrl;
+        this.sourceName = sourceName;
+        this.externalReference = externalReference;
+        this.extractedAt = extractedAt;
+        this.publicationUrl = publicationUrl;
+        this.status = status;
+        this.assignedUserId = assignedUserId;
+        this.lockedAt = lockedAt;
+        this.lockExpiresAt = lockExpiresAt;
+        this.approvedAt = approvedAt;
+        this.publishedAt = publishedAt;
+        this.createdAt = createdAt;
+        this.createdBy = createdBy;
+        this.updatedAt = updatedAt;
+        this.updatedBy = updatedBy;
+    }
+
+    private JobOffer(UUID id, NewJobOffer data, UUID actor, Instant now) {
         this.id = id;
         this.sourceName = data.sourceName();
         this.externalReference = data.externalReference();
@@ -64,7 +100,8 @@ public class JobOffer {
         this.lockExpiresAt = null;
         this.publicationUrl = null;
     }
-    public static JobOffer register(NewJobOffer data, UUID actor, Instant now){
+
+    public static JobOffer register(NewJobOffer data, UUID actor, Instant now) {
         Objects.requireNonNull(data, "NewJobOffer data cannot be null");
         Objects.requireNonNull(actor, "Actor UUID cannot be null");
         Objects.requireNonNull(now, "Instant now cannot be null");
@@ -79,8 +116,8 @@ public class JobOffer {
         return new JobOffer(UUID.randomUUID(), data, actor, now);
     }
 
-    public void updateContent(JobOfferContent content, UUID actor, Instant now){
-    Objects.requireNonNull(content, "JobOfferContent cannot be null");
+    public void updateContent(JobOfferContent content, UUID actor, Instant now) {
+        Objects.requireNonNull(content, "JobOfferContent cannot be null");
         Objects.requireNonNull(actor, "Actor UUID cannot be null");
         Objects.requireNonNull(now, "Instant now cannot be null");
 
@@ -107,14 +144,15 @@ public class JobOffer {
         this.updatedBy = actor;
     }
 
-    public void approve(UUID actor, Instant now){
+    public void approve(UUID actor, Instant now) {
         Objects.requireNonNull(actor, "Actor UUID cannot be null");
         Objects.requireNonNull(now, "Instant now cannot be null");
 
         transitionTo(JobStatus.APPROVED, actor, now);
         this.approvedAt = now;
     }
-    public void reject(UUID actor, String reason, Instant now){
+
+    public void reject(UUID actor, String reason, Instant now) {
         Objects.requireNonNull(actor, "Actor UUID cannot be null");
         Objects.requireNonNull(now, "Instant now cannot be null");
 
@@ -180,86 +218,127 @@ public class JobOffer {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Field '" + fieldName + "' is required and cannot be blank");
         }
-    }   
+    }
 
     public boolean isLockExpired(Instant now) {
         Objects.requireNonNull(now, "Instant now cannot be null");
-        return this.status == JobStatus.IN_PROGRESS 
-                && this.lockExpiresAt != null 
+        return this.status == JobStatus.IN_PROGRESS
+                && this.lockExpiresAt != null
                 && this.lockExpiresAt.isBefore(now);
+    }
+
+    public static JobOffer reconstitute(
+            UUID id,
+            String title, String company, String description, String requirements,
+            String location, String salary, String employmentType,
+            String originalSourceUrl, String sourceName, String externalReference,
+            Instant extractedAt, String publicationUrl,
+            JobStatus status, UUID assignedUserId, Instant lockedAt, Instant lockExpiresAt,
+            Instant approvedAt, Instant publishedAt,
+            Instant createdAt, UUID createdBy, Instant updatedAt, UUID updatedBy) {
+
+        return new JobOffer(
+                id, title, company, description, requirements, location, salary,
+                employmentType, originalSourceUrl, sourceName, externalReference, extractedAt,
+                publicationUrl, status, assignedUserId, lockedAt, lockExpiresAt, approvedAt,
+                publishedAt, createdAt, createdBy, updatedAt, updatedBy
+        );
     }
 
     public boolean isAssignedTo(UUID userId) {
         return userId != null && userId.equals(this.assignedUserId);
     }
+
     public UUID getId() {
         return id;
     }
+
     public String getTitle() {
         return title;
     }
+
     public String getCompany() {
         return company;
     }
+
     public String getDescription() {
         return description;
     }
+
     public String getRequirements() {
         return requirements;
     }
+
     public String getLocation() {
         return location;
     }
+
     public String getSalary() {
         return salary;
     }
+
     public String getEmploymentType() {
         return employmentType;
     }
+
     public String getOriginalSourceUrl() {
         return originalSourceUrl;
     }
+
     public String getSourceName() {
         return sourceName;
     }
+
     public String getExternalReference() {
         return externalReference;
     }
+
     public Instant getExtractedAt() {
         return extractedAt;
     }
+
     public String getPublicationUrl() {
         return publicationUrl;
     }
+
     public JobStatus getStatus() {
         return status;
     }
+
     public UUID getAssignedUserId() {
         return assignedUserId;
     }
+
     public Instant getLockedAt() {
         return lockedAt;
     }
+
     public Instant getLockExpiresAt() {
         return lockExpiresAt;
     }
+
     public Instant getApprovedAt() {
         return approvedAt;
     }
+
     public Instant getPublishedAt() {
         return publishedAt;
     }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
+
     public UUID getCreatedBy() {
         return createdBy;
     }
+
     public Instant getUpdatedAt() {
         return updatedAt;
     }
+
     public UUID getUpdatedBy() {
         return updatedBy;
     }
-    
+
 }

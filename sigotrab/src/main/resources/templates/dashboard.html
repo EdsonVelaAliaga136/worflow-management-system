@@ -3,15 +3,18 @@
       th:replace="~{layout :: layout(~{::title}, ~{::main})}">
 <head><title>Panel — SIGO</title></head>
 <body>
-<main class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">
-      Bienvenido,
-      <span th:text="${#authentication.name}">Usuario</span>
-    </h1>
-    <form th:action="@{/logout}" method="post">
-      <button type="submit" class="btn btn-outline-secondary">Salir</button>
-    </form>
+<main id="contenido" class="app-main container">
+  <div class="masthead">
+    <div>
+      <h1 class="mb-1">
+        Bienvenido,
+        <span th:text="${#authentication.name}">Usuario</span>
+      </h1>
+      <p class="text-body-secondary mb-0">Registro de ofertas de SIGO.</p>
+    </div>
+    <div class="masthead__actions">
+      <a class="btn btn-primary btn-sm" th:href="@{/offers}">Ver ofertas</a>
+    </div>
   </div>
 </main>
 </body>

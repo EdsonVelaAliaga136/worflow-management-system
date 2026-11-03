@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+  <title th:text="${registered} ? #{offers.registered} : #{offers.title}">Ofertas - SIGO</title>
+</head>
+<body>
+<main id="contenido" class="app-main container">
+
+  <div class="masthead">
+    <div>
+      <h1 class="mb-1" th:text="${registered} ? #{offers.registered} : #{offers.title}">Ofertas</h1>
+      <p class="masthead__count mb-0"
+         th:text="${totalElements == 1} ? #{offers.total.one} : #{offers.total.other(${totalElements})}">12 ofertas en el registro</p>
+    </div>
+    <div class="masthead__actions">
+      <a class="btn btn-quiet btn-sm" th:if="${!registered}"
+         th:href="@{/offers/registered}" th:text="#{offers.filter.registered}">Solo registradas</a>
+      <a class="btn btn-quiet btn-sm" th:if="${registered}"
+         th:href="@{/offers}" th:text="#{offers.filter.all}">Ver todas</a>
+      <a class="btn btn-primary btn-sm" sec:authorize="hasAnyRole('REGISTRADOR','ADMIN')"
+         th:href="@{/offers/new}" th:text="#{offers.new}">Registrar oferta</a>
+    </div>
+  </div>
+
+  <div class="blank" th:if="${#lists.isEmpty(offers)}">
+    <p class="blank__mark" aria-hidden="true">0</p>
+    <p class="mb-3" th:text="#{offers.empty}">No hay ofertas para mostrar.</p>
+    <a class="btn btn-primary" sec:authorize="hasAnyRole('REGISTRADOR','ADMIN')"
+       th:href="@{/offers/new}" th:text="#{offers.new}">Registrar oferta</a>
+  </div>
+
+  <div class="ledger" th:unless="${#lists.isEmpty(offers)}">
+    <div class="ledger__head" aria-hidden="true">
+      <span th:text="#{offers.col.offer}">Oferta</span>
+      <span th:text="#{offers.col.company}">Empresa</span>
+      <span th:text="#{offers.col.status}">Estado</span>
+      <span th:text="#{offers.col.extracted}">Extraída</span>
+      <span></span>
+    </div>
+
+    <ul class="ledger__body">
+      <li th:each="o : ${offers}">
+        <!-- o.status es el enum; name() da REGISTERED, IN_PROGRESS... -->
+        <a class="ledger__row"
+           th:classappend="'ledger__row--' + ${#strings.toLowerCase(o.status.name())}"
+           th:href="@{'/offers/' + ${o.id}}">
+          <span class="ledger__title" th:text="${o.title}">Analista de datos</span>
+          <span class="ledger__company" th:text="${o.company}">ACME</span>
+          <span class="ledger__status">
+            <span class="seal"
+                  th:classappend="'seal--' + ${#strings.toLowerCase(o.status.name())}"
+                  th:text="${o.statusLabel}">Registrada</span>
+          </span>
+          <span class="ledger__date" th:text="${o.extractedAt}">2026-01-15 10:00 UTC</span>
+          <i class="bi bi-arrow-right ledger__go" aria-hidden="true"></i>
+          <span class="visually-hidden" th:text="#{offers.view}">Ver</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <nav class="pager" th:if="${page.totalPages() > 1}" aria-label="Paginacion">
+    <a class="btn btn-sm btn-quiet" th:if="${page.hasPrevious()}"
+       th:href="@{${baseUrl}(page=${page.page() - 1})}"
+       th:text="#{offers.page.prev}">Anterior</a>
+    <span class="pager__status"
+          th:text="#{offers.page.status(${page.page() + 1}, ${page.totalPages()})}">Página 1 de 2</span>
+    <a class="btn btn-sm btn-quiet" th:if="${page.hasNext()}"
+       th:href="@{${baseUrl}(page=${page.page() + 1})}"
+       th:text="#{offers.page.next}">Siguiente</a>
+  </nav>
+
+</main>
+</body>
+</html>
